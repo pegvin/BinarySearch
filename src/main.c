@@ -3,13 +3,21 @@
 #include <stdlib.h> // for generating random numbers
 #include <time.h>   // for using time as random number generator's seed
 
+static inline void UpdateSeed() {
+	srand(time(NULL));
+}
+
+static inline uint32_t RandNum(uint32_t min, uint32_t max) {
+	return rand() % (max + 1 - min) + min;
+}
+
 // Fills a Array `arr` containing `numElems` elements,
 // with random numbers in a sorted order (ascending).
 void FillArrayWithRandom(uint32_t* arr, uint32_t numElems) {
-	srand(time(NULL));
+	UpdateSeed();
 	for (uint32_t i = 0; i < numElems; i++) {
 		uint32_t min = i > 0 ? arr[i - 1] : 5;
-		uint32_t num = rand() % ((min + 50) + 1 - min) + min;
+		uint32_t num = RandNum(min, min + 50);
 		arr[i] = num;
 	}
 }
@@ -47,7 +55,7 @@ int main(void) {
 
 	uint32_t index = 0;
 	// Select a Number at a Random Index in The Array
-	uint32_t numToSearch = NumArr[rand() % ((NumArrLen) + 1 - 1000) + 1000];
+	uint32_t numToSearch = NumArr[RandNum(1000, NumArrLen)];
 	printf("Searching for %d... ", numToSearch);
 	fflush(stdout); // Flush text to terminal instantly
 	int Result = BinarySearch(NumArr, NumArrLen, numToSearch, &index);
