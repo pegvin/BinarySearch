@@ -3,6 +3,15 @@
 #include <stdlib.h> // for generating random numbers
 #include <time.h>   // for using time as random number generator's seed
 
+clock_t __clockTimeRecorded = 0;
+static inline void ProfilerStart() {
+	__clockTimeRecorded = clock();
+}
+
+static inline double ProfilerEnd() {
+	return ((double)(clock() - __clockTimeRecorded)/CLOCKS_PER_SEC) * 1000;
+}
+
 static inline void UpdateSeed() {
 	srand(time(NULL));
 }
@@ -50,19 +59,27 @@ int main(void) {
 
 	printf("Filling Array with %d random numbers... ", NumArrLen);
 	fflush(stdout); // Flush text to terminal instantly
+	ProfilerStart();
+
 	FillArrayWithRandom(NumArr, NumArrLen);
-	printf("Done.\n");
+
+	double TimeTookToFill = ProfilerEnd();
+	printf("Done. Took %.2fms\n", TimeTookToFill);
 
 	uint32_t index = 0;
 	// Select a Number at a Random Index in The Array
-	uint32_t numToSearch = NumArr[RandNum(1000, NumArrLen)];
+	uint32_t numToSearch = NumArr[RandNum(10, 10000)];
 	printf("Searching for %d... ", numToSearch);
 	fflush(stdout); // Flush text to terminal instantly
+	ProfilerStart();
+
 	int Result = BinarySearch(NumArr, NumArrLen, numToSearch, &index);
+
+	double TimeTookToSearch = ProfilerEnd();
 	if (Result != 0) {
-		printf("Found at Index %d\n", index);
+		printf("Found at Index %d, Took %.2fms\n", index, TimeTookToSearch);
 	} else {
-		printf("Not Found\n");
+		printf("Not Found, Took %.2fms\n", TimeTookToSearch);
 	}
 
 	free(NumArr);
