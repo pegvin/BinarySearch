@@ -1,35 +1,14 @@
-#include <stdio.h>  // flushing stdout instantly
-#include <stdint.h> // defined size types
-#include <stdlib.h> // for generating random numbers
-#include <time.h>   // for using time as random number generator's seed
+#include <stdio.h>
+#include <stdlib.h>
+#include <stdint.h>
 
-clock_t __clockTimeRecorded = 0;
-static inline void ProfilerStart() {
-	__clockTimeRecorded = clock();
-}
+static inline void ProfilerStart();
+static inline double ProfilerEnd();
 
-static inline double ProfilerEnd() {
-	return ((double)(clock() - __clockTimeRecorded)/CLOCKS_PER_SEC) * 1000;
-}
+static inline void UpdateSeed();
+static inline uint32_t RandNum(uint32_t min, uint32_t max);
 
-static inline void UpdateSeed() {
-	srand(time(NULL));
-}
-
-static inline uint32_t RandNum(uint32_t min, uint32_t max) {
-	return rand() % (max + 1 - min) + min;
-}
-
-// Fills a Array `arr` containing `numElems` elements,
-// with random numbers in a sorted order (ascending).
-void FillArrayWithRandom(uint32_t* arr, uint32_t numElems) {
-	UpdateSeed();
-	for (uint32_t i = 0; i < numElems; i++) {
-		uint32_t min = i > 0 ? arr[i - 1] : 5;
-		uint32_t num = RandNum(min, min + 50);
-		arr[i] = num;
-	}
-}
+void FillWithRandom(uint32_t* arr, uint32_t numElems);
 
 // Uses Binary Search to find `numToSearch` number inside `arr` Array,
 // containing `numElems` elements, and returns non-zero value if it finds
@@ -61,7 +40,7 @@ int main(void) {
 	fflush(stdout); // Flush text to terminal instantly
 	ProfilerStart();
 
-	FillArrayWithRandom(NumArr, NumArrLen);
+	FillWithRandom(NumArr, NumArrLen);
 
 	double TimeTookToFill = ProfilerEnd();
 	printf("Done. Took %.2fms\n", TimeTookToFill);
@@ -84,5 +63,34 @@ int main(void) {
 
 	free(NumArr);
 	return 0;
+}
+
+#include <time.h>   // for using time as random number generator's seed
+
+clock_t __clockTimeRecorded = 0;
+static inline void ProfilerStart() {
+	__clockTimeRecorded = clock();
+}
+
+static inline double ProfilerEnd() {
+	return ((double)(clock() - __clockTimeRecorded)/CLOCKS_PER_SEC) * 1000;
+}
+
+static inline void UpdateSeed() {
+	srand(time(NULL));
+}
+
+static inline uint32_t RandNum(uint32_t min, uint32_t max) {
+	return rand() % (max + 1 - min) + min;
+}
+
+// Fills with random number but in ascending order
+void FillWithRandom(uint32_t* arr, uint32_t numElems) {
+	UpdateSeed();
+	for (uint32_t i = 0; i < numElems; i++) {
+		uint32_t min = i > 0 ? arr[i - 1] : 5;
+		uint32_t num = RandNum(min, min + 50);
+		arr[i] = num;
+	}
 }
 
